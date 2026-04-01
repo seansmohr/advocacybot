@@ -43,7 +43,12 @@ function getDocRequestNames(text) {
 }
 
 function isFullAnalysis(text) {
-  return text.includes('## 1. Case Analysis Summary') && text.includes('## 5. Draft Appeal Letter');
+  // Flexible detection: look for key analysis sections with loose matching
+  const hasAnalysisSummary = /##\s*1[\.\):]?\s*Case Analysis/i.test(text);
+  const hasDraftAppeal = /##\s*\d[\.\):]?\s*Draft Appeal/i.test(text);
+  const hasActionPlan = /##\s*\d[\.\):]?\s*(Step.by.Step Action Plan|Action Plan|What You Can Do)/i.test(text);
+  // Consider it a full analysis if it has at least 2 of these key sections
+  return [hasAnalysisSummary, hasDraftAppeal, hasActionPlan].filter(Boolean).length >= 2;
 }
 
 function TypingIndicator() {

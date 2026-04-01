@@ -4,8 +4,8 @@ import ReactMarkdown from 'react-markdown';
 export default function CaseAnalysis({ content, onReset }) {
   const [copied, setCopied] = useState(false);
 
-  // Extract appeal letter section
-  const appealMatch = content.match(/## 5\. Draft Appeal Letter\s*([\s\S]*?)(?=## 6\.|$)/);
+  // Extract appeal letter section (flexible heading match)
+  const appealMatch = content.match(/##\s*\d[\.\):]?\s*Draft Appeal.*?\n([\s\S]*?)(?=##\s*\d[\.\):]?\s|$)/);
   const appealLetter = appealMatch ? appealMatch[1].trim() : null;
 
   const copyLetter = () => {

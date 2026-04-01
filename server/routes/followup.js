@@ -14,10 +14,17 @@ router.post('/followup', async (req, res) => {
 
     if (images && images.length > 0) {
       for (const img of images) {
-        content.push({
-          type: 'image',
-          source: { type: 'base64', media_type: img.mediaType, data: img.base64 }
-        });
+        if (img.mediaType === 'application/pdf') {
+          content.push({
+            type: 'document',
+            source: { type: 'base64', media_type: 'application/pdf', data: img.base64 }
+          });
+        } else {
+          content.push({
+            type: 'image',
+            source: { type: 'base64', media_type: img.mediaType, data: img.base64 }
+          });
+        }
       }
     }
 

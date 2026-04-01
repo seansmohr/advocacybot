@@ -99,7 +99,7 @@ export default function App() {
     const userMsg = {
       role: 'user',
       content: text || (generateAnalysis ? "That's everything I have — give me my action plan." : ''),
-      images: images?.map(img => ({ preview: img.preview }))
+      images: images?.map(img => ({ preview: img.preview, isPdf: img.isPdf, fileName: img.fileName }))
     };
 
     setMessages(prev => [...prev, userMsg]);

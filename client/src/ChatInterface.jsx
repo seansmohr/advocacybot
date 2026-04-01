@@ -65,7 +65,13 @@ function MessageBubble({ message, onUpload, onSkip }) {
           {message.images && message.images.length > 0 && (
             <div className="flex gap-2 flex-wrap justify-end mb-2">
               {message.images.map((img, i) => (
-                <img key={i} src={img.preview} alt="Uploaded document" className="w-20 h-20 object-cover rounded-lg border" />
+                img.isPdf ? (
+                  <div key={i} className="w-20 h-20 bg-red-50 border border-red-200 rounded-lg flex items-center justify-center">
+                    <span className="text-red-600 text-xs font-bold">PDF</span>
+                  </div>
+                ) : (
+                  <img key={i} src={img.preview} alt="Uploaded document" className="w-20 h-20 object-cover rounded-lg border" />
+                )
               ))}
             </div>
           )}
@@ -190,30 +196,39 @@ export default function ChatInterface({ messages, isStreaming, onSendMessage, on
 
     const processed = [];
     for (const file of files) {
-      const result = await new Promise((resolve) => {
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-        img.onload = () => {
-          URL.revokeObjectURL(url);
-          let scale = 1;
-          const maxDim = 2048;
-          if (img.width > maxDim || img.height > maxDim) {
-            scale = maxDim / Math.max(img.width, img.height);
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(img.width * scale);
-          canvas.height = Math.round(img.height * scale);
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve({
-            base64: canvas.toDataURL('image/jpeg', 0.8).split(',')[1],
-            mediaType: 'image/jpeg',
-            preview: canvas.toDataURL('image/jpeg', 0.3)
-          });
-        };
-        img.src = url;
-      });
-      processed.push(result);
+      if (file.type === 'application/pdf') {
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(file);
+        });
+        processed.push({ base64, mediaType: 'application/pdf', preview: null, isPdf: true, fileName: file.name });
+      } else {
+        const result = await new Promise((resolve) => {
+          const img = new Image();
+          const url = URL.createObjectURL(file);
+          img.onload = () => {
+            URL.revokeObjectURL(url);
+            let scale = 1;
+            const maxDim = 2048;
+            if (img.width > maxDim || img.height > maxDim) {
+              scale = maxDim / Math.max(img.width, img.height);
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve({
+              base64: canvas.toDataURL('image/jpeg', 0.8).split(',')[1],
+              mediaType: 'image/jpeg',
+              preview: canvas.toDataURL('image/jpeg', 0.3)
+            });
+          };
+          img.src = url;
+        });
+        processed.push(result);
+      }
     }
     setPendingImages(prev => [...prev, ...processed].slice(0, 5));
     // Reset file input
@@ -297,7 +312,14 @@ export default function ChatInterface({ messages, isStreaming, onSendMessage, on
               <div className="flex gap-2 mb-2 flex-wrap">
                 {pendingImages.map((img, i) => (
                   <div key={i} className="relative">
-                    <img src={img.preview} alt="Pending" className="w-16 h-16 object-cover rounded-lg border" />
+                    {img.isPdf ? (
+                      <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-lg flex flex-col items-center justify-center">
+                        <span className="text-red-600 text-xs font-bold">PDF</span>
+                        <span className="text-red-400 text-[9px] truncate max-w-[56px]">{img.fileName}</span>
+                      </div>
+                    ) : (
+                      <img src={img.preview} alt="Pending" className="w-16 h-16 object-cover rounded-lg border" />
+                    )}
                     <button
                       onClick={() => removePendingImage(i)}
                       className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
@@ -346,8 +368,7 @@ export default function ChatInterface({ messages, isStreaming, onSendMessage, on
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
-            capture="environment"
+            accept="image/*,.pdf,application/pdf"
             multiple
             onChange={handleFileSelect}
             className="hidden"

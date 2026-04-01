@@ -1,0 +1,23 @@
+{
+  "name": "health-advocacy",
+  "version": "1.0.0",
+  "description": "Health Insurance Advocacy AI Tool by Mohr Insurance Services",
+  "main": "server/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "cd client && npx vite",
+    "build": "cd client && npx vite build",
+    "start": "npm run build && node server/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

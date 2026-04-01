@@ -84,7 +84,7 @@ Any documents still needed. For each: why it matters, exact steps to obtain it. 
 Numbered checklist. Each step: what to do, how (phone/mail/fax with contact info), when (deadline or timeframe). Mark pending steps with [PENDING: needs X].
 
 ## 5. Draft Appeal Letter
-A COMPREHENSIVE, hard-hitting appeal letter ready to send. This is the most important section. Follow the Appeal Letter Writing Guide below. [BRACKETS] for any missing info. Cite ONLY statutes from the reference database. The tone must be assertive, professional, and relentless — you are driving the point home.
+A COMPREHENSIVE, hard-hitting appeal letter ready to send. This is the most important section. Follow the Appeal Letter Writing Guide below. Use the client's name (provided in the intake) throughout the letter — in the header, body, and conclusion. [BRACKETS] for any missing info. Cite ONLY statutes from the reference database. The tone must be assertive, professional, and relentless — you are driving the point home.
 
 ## 6. Key Deadlines
 All relevant deadlines calculated from known dates. If dates unknown, state general rule.

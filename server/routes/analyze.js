@@ -7,11 +7,12 @@ const anthropic = new Anthropic();
 
 router.post('/analyze', async (req, res) => {
   try {
-    const { coverageType, medicareType, medigapPlan, carrier, amount, description, grievanceStatus } = req.body;
+    const { clientName, coverageType, medicareType, medigapPlan, carrier, amount, description, grievanceStatus } = req.body;
 
     const grievanceLabels = { denied: 'Yes — grievance/appeal was denied by the plan', pending: 'Yes — grievance/appeal is still being reviewed', not_filed: 'No grievance or appeal has been filed yet', not_sure: 'Client is unsure whether a grievance has been filed' };
 
     let userMessage = `NEW CASE INTAKE:\n`;
+    userMessage += `Client Name: ${clientName}\n`;
     userMessage += `Coverage Type: ${coverageType}\n`;
     if (medicareType) userMessage += `Medicare Plan Type: ${medicareType}\n`;
     if (medigapPlan) userMessage += `Medigap Plan Letter: ${medigapPlan}\n`;

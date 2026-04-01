@@ -39,6 +39,7 @@ const GRIEVANCE_STATUS = [
 ];
 
 export default function IntakeForm({ onSubmit }) {
+  const [clientName, setClientName] = useState('');
   const [coverageType, setCoverageType] = useState('');
   const [medicareType, setMedicareType] = useState('');
   const [medigapPlan, setMedigapPlan] = useState('');
@@ -63,7 +64,7 @@ export default function IntakeForm({ onSubmit }) {
     ? CARRIERS.filter(c => c.toLowerCase().includes(carrierSearch.toLowerCase()))
     : CARRIERS;
 
-  const canSubmit = coverageType && amount && description && grievanceStatus && !submitting
+  const canSubmit = clientName.trim() && coverageType && amount && description && grievanceStatus && !submitting
     && (!showMedicareType || medicareType)
     && (!showMedigap || medigapPlan)
     && (!showCarrier || carrier || otherCarrier);
@@ -73,6 +74,7 @@ export default function IntakeForm({ onSubmit }) {
     if (!canSubmit) return;
     setSubmitting(true);
     await onSubmit({
+      clientName: clientName.trim(),
       coverageType,
       medicareType: medicareType || undefined,
       medigapPlan: medigapPlan || undefined,
@@ -93,6 +95,23 @@ export default function IntakeForm({ onSubmit }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Client Name */}
+        <div>
+          <label className="block text-lg font-semibold text-slate-700 mb-2">
+            What is your name?
+          </label>
+          <p className="text-sm text-slate-500 mb-3">
+            We'll use this in your appeal letter and correspondence.
+          </p>
+          <input
+            type="text"
+            placeholder="Your full name"
+            value={clientName}
+            onChange={e => setClientName(e.target.value)}
+            className="w-full p-4 rounded-xl border-2 border-slate-200 bg-white text-lg focus:border-brand-600 focus:outline-none"
+          />
+        </div>
+
         {/* Coverage Type */}
         <fieldset>
           <legend className="text-lg font-semibold text-slate-700 mb-3">

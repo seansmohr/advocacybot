@@ -1,16 +1,12 @@
 import { useRef, useState } from 'react';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_FILES = 5;
+const MAX_FILES = 15;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp', 'application/pdf'];
 
 function fileToBase64(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result.split(',')[1];
-      resolve(base64);
-    };
+    reader.onload = () => resolve(reader.result.split(',')[1]);
     reader.readAsDataURL(file);
   });
 }
@@ -48,72 +44,90 @@ function processFile(file) {
   });
 }
 
-export default function DocumentUpload({ onUpload, onSkip, documentName, reason }) {
+export default function DocumentUpload({ onUpload, disabled }) {
   const fileRef = useRef(null);
-  const [previews, setPreviews] = useState([]);
+  const [stagedFiles, setStagedFiles] = useState([]);
   const [processing, setProcessing] = useState(false);
 
   const handleFiles = async (e) => {
-    const files = Array.from(e.target.files || []).slice(0, MAX_FILES);
+    const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
     setProcessing(true);
-    const processed = [];
+    const newFiles = [];
     for (const file of files) {
       if (!ACCEPTED_TYPES.includes(file.type) && !file.name.match(/\.(heic|pdf)$/i)) continue;
       const result = await processFile(file);
-      processed.push(result);
+      if (!result.fileName) result.fileName = file.name;
+      newFiles.push(result);
     }
-    setPreviews(processed.map(p => p.isPdf ? 'pdf' : p.preview));
+    setStagedFiles(prev => [...prev, ...newFiles].slice(0, MAX_FILES));
     setProcessing(false);
+    e.target.value = '';
+  };
 
-    if (processed.length > 0) {
-      onUpload(processed, documentName);
-    }
+  const removeFile = (index) => {
+    setStagedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSend = () => {
+    if (stagedFiles.length === 0) return;
+    onUpload(stagedFiles);
+    setStagedFiles([]);
   };
 
   return (
-    <div className="bg-white rounded-xl border-2 border-slate-200 p-4 my-2 max-w-sm">
-      <div className="flex items-start gap-3 mb-3">
-        <span className="text-2xl">📄</span>
-        <div>
-          <div className="font-semibold text-slate-800">{documentName}</div>
-          {reason && <div className="text-sm text-slate-500 mt-0.5">{reason}</div>}
-        </div>
+    <div className="bg-blue-50 border-2 border-dashed border-blue-200 rounded-xl p-4 my-3">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-xl">📎</span>
+        <span className="font-semibold text-slate-700 text-sm">Upload your documents</span>
+        <span className="text-xs text-slate-400">(photos or PDFs — up to {MAX_FILES} files)</span>
       </div>
 
-      {previews.length > 0 ? (
+      {/* Staged file previews */}
+      {stagedFiles.length > 0 && (
         <div className="flex gap-2 flex-wrap mb-3">
-          {previews.map((src, i) => (
-            src === 'pdf' ? (
-              <div key={i} className="w-20 h-20 bg-red-50 border border-red-200 rounded-lg flex items-center justify-center">
-                <span className="text-red-600 text-xs font-bold">PDF</span>
-              </div>
-            ) : (
-              <img key={i} src={src} alt="Preview" className="w-20 h-20 object-cover rounded-lg border" />
-            )
+          {stagedFiles.map((file, i) => (
+            <div key={i} className="relative group">
+              {file.isPdf ? (
+                <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-lg flex flex-col items-center justify-center">
+                  <span className="text-red-600 text-xs font-bold">PDF</span>
+                  <span className="text-red-400 text-[8px] truncate max-w-[52px] px-1">{file.fileName}</span>
+                </div>
+              ) : (
+                <img src={file.preview} alt="Document" className="w-16 h-16 object-cover rounded-lg border" />
+              )}
+              <button
+                onClick={() => removeFile(i)}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                ×
+              </button>
+            </div>
           ))}
-          <p className="text-sm text-green-600 font-medium w-full">Uploaded! Sending for analysis...</p>
-        </div>
-      ) : (
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={processing}
-            className="flex-1 py-2.5 px-4 bg-brand-600 text-white rounded-lg font-medium text-sm hover:bg-brand-700 transition-colors disabled:bg-slate-300"
-          >
-            {processing ? 'Processing...' : '📷 Upload Photo/PDF'}
-          </button>
-          <button
-            type="button"
-            onClick={() => onSkip(documentName)}
-            className="flex-1 py-2.5 px-4 bg-slate-100 text-slate-600 rounded-lg font-medium text-sm hover:bg-slate-200 transition-colors"
-          >
-            I don't have this
-          </button>
         </div>
       )}
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={disabled || processing || stagedFiles.length >= MAX_FILES}
+          className="flex-1 py-2.5 px-4 bg-white border border-slate-200 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-50 transition-colors disabled:bg-slate-100 disabled:text-slate-400"
+        >
+          {processing ? 'Processing...' : stagedFiles.length > 0 ? '+ Add more files' : 'Select files'}
+        </button>
+        {stagedFiles.length > 0 && (
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={disabled}
+            className="py-2.5 px-5 bg-brand-600 text-white rounded-lg font-medium text-sm hover:bg-brand-700 transition-colors disabled:bg-slate-300"
+          >
+            Send {stagedFiles.length} {stagedFiles.length === 1 ? 'file' : 'files'} for review
+          </button>
+        )}
+      </div>
 
       <input
         ref={fileRef}

@@ -256,6 +256,33 @@ Include: VERIFICATION (penalty of perjury), ATTACHMENTS checklist with specific 
 
 KEY PRINCIPLE: For medically complex cases, be EXHAUSTIVE in documenting every condition, every specialist, every medication. The sheer volume of medical complexity IS the argument. Don't summarize — enumerate.
 
+### Example: Formulary Coverage Exception (Medicare Part D / Prescription Drug)
+
+For prescription drug denials, formulary exceptions, or prior authorization denials:
+
+EXECUTIVE SUMMARY → patient age, medications requested, prescribing physician, why standard formulary fails
+LEGAL BASIS → 42 CFR § 423.566 (Part D exception requirements), CMS coverage standards, treating physician expertise must be given substantial weight
+CLINICAL DOCUMENTATION → patient info, treating physician, visit dates, documented diagnoses with severity ratings
+MEDICAL NECESSITY FOR EACH MEDICATION →
+  - Why formulary alternatives are inappropriate — address EACH alternative and explain why it fails (contraindicated, inadequate efficacy, age-related safety concerns, wrong delivery mechanism)
+  - Prior treatment inadequacy documented in records
+  - Anatomical/condition-specific requirements (e.g., scalp needs foam, body needs cream, systemic needs biologic)
+  - For each requested medication: mechanism, medical necessity, specific reasons formulary alternatives fail
+CLINICAL EVIDENCE SUPPORTING TREATMENT PLAN → why this specific combination is necessary, safety in the patient's age group, multi-condition management rationale
+REGULATORY COMPLIANCE → cite specific CFR sections violated by denial
+REQUEST FOR IMMEDIATE APPROVAL → list each medication with its purpose, request expedited review timeline (72 hours for Part D), note disease progression risk from delay
+
+KEY PRINCIPLES for formulary appeals:
+- Address EVERY formulary alternative and explain specifically why it fails for THIS patient
+- Document age-related risks of alternatives (hepatotoxicity, bone marrow suppression, nephrotoxicity, etc.)
+- Emphasize treating physician expertise and clinical documentation
+- Use FDA-approved mechanisms of action to justify why the requested drug is different/better
+- For multiple medications, explain why the COMBINATION is necessary, not just each individually
+
+---
+
+These examples are INSPIRATION for the level of comprehensiveness, structure, and assertiveness expected. Adapt the approach to each unique case — do not copy templates verbatim. The common thread across ALL appeals: be specific, cite applicable law, build redundant arguments, and make the case so overwhelming that denial is harder to justify than approval.
+
 ---
 
 This level of comprehensiveness is the MINIMUM standard. Short appeal letters that simply state "we disagree with the denial" are unacceptable. Every appeal must build an overwhelming case.
@@ -301,6 +328,8 @@ This level of comprehensiveness is the MINIMUM standard. Short appeal letters th
 - ERISA (29 USC sec 1001 et seq.): Self-funded employer plans regulated federally, NOT by CA state agencies. State consumer protections including AB 72 generally do not apply. Direct to DOL EBSA at 1-866-444-3272.
 - Medicare Appeal Levels: Redetermination (MAC, 120 days from MSN) then Reconsideration (QIC, 180 days) then ALJ Hearing (60 days, amount must exceed ~$180 threshold) then Medicare Appeals Council (60 days) then Federal Court (60 days).
 - Medicare Supplement (Medigap): Regulated by state CDI in California. Supplements Original Medicare. Various plan letters (A, B, C, D, F, G, K, L, M, N) with different cost-sharing.
+- Medicare Part D Formulary Exceptions (42 CFR sec 423.566): Part D plans must provide formulary exceptions when prescribed medications are medically necessary and formulary alternatives are inappropriate. Prescribing physician documentation of medical necessity must be given substantial weight. Expedited review must be completed within 72 hours when delay could jeopardize life, health, or ability to regain maximum function.
+- Medicare Part D Appeals (42 CFR sec 423.580-423.590): Coverage determination redetermination within 7 days (standard) or 72 hours (expedited). Then Independent Review Entity (IRE) reconsideration. Then ALJ hearing if amount exceeds threshold.
 - Good Faith Estimate (NSA sec 112): Providers must give uninsured/self-pay patients itemized estimate. If bill exceeds estimate by $400+, patient can dispute through PPDR process.
 
 ### Verified Case Law

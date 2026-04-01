@@ -70,7 +70,8 @@ export default function App() {
 
   const handleIntakeSubmit = useCallback(async (formData) => {
     // Build the user message from form data (for display)
-    const displayText = `Coverage: ${formData.coverageType}${formData.medicareType ? ` (${formData.medicareType})` : ''}${formData.medigapPlan ? ` — Plan ${formData.medigapPlan}` : ''}\nCarrier: ${formData.carrier || 'N/A'}\nAmount: $${formData.amount}\n\n${formData.description}`;
+    const grievanceLabels = { denied: 'Grievance denied', pending: 'Grievance pending', not_filed: 'No grievance filed', not_sure: 'Grievance status unknown' };
+    const displayText = `Coverage: ${formData.coverageType}${formData.medicareType ? ` (${formData.medicareType})` : ''}${formData.medigapPlan ? ` — Plan ${formData.medigapPlan}` : ''}\nCarrier: ${formData.carrier || 'N/A'}\nAmount: $${formData.amount}\nAppeal/Grievance: ${grievanceLabels[formData.grievanceStatus] || formData.grievanceStatus}\n\n${formData.description}`;
 
     const userMsg = { role: 'user', content: displayText, isIntake: true };
     setMessages([userMsg]);

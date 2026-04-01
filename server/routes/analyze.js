@@ -7,7 +7,9 @@ const anthropic = new Anthropic();
 
 router.post('/analyze', async (req, res) => {
   try {
-    const { coverageType, medicareType, medigapPlan, carrier, amount, description } = req.body;
+    const { coverageType, medicareType, medigapPlan, carrier, amount, description, grievanceStatus } = req.body;
+
+    const grievanceLabels = { denied: 'Yes — grievance/appeal was denied by the plan', pending: 'Yes — grievance/appeal is still being reviewed', not_filed: 'No grievance or appeal has been filed yet', not_sure: 'Client is unsure whether a grievance has been filed' };
 
     let userMessage = `NEW CASE INTAKE:\n`;
     userMessage += `Coverage Type: ${coverageType}\n`;
@@ -15,6 +17,7 @@ router.post('/analyze', async (req, res) => {
     if (medigapPlan) userMessage += `Medigap Plan Letter: ${medigapPlan}\n`;
     if (carrier) userMessage += `Insurance Carrier: ${carrier}\n`;
     userMessage += `Amount in Dispute: $${amount}\n`;
+    userMessage += `Grievance/Appeal Status: ${grievanceLabels[grievanceStatus] || grievanceStatus}\n`;
     userMessage += `State: California\n\n`;
     userMessage += `Client Description:\n${description}\n\n`;
     userMessage += `This is the initial intake. Respond with Phase 1: acknowledge the situation, provide preliminary assessment, and request the specific documents you need to analyze this case. Format each document request using the docrequest code block format specified in your instructions.`;

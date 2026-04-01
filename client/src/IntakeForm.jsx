@@ -31,6 +31,13 @@ const CARRIERS = [
   'L.A. Care Health Plan',
 ];
 
+const GRIEVANCE_STATUS = [
+  { value: 'denied', label: 'Yes, they denied it', desc: '' },
+  { value: 'pending', label: "Yes, it's still being reviewed", desc: '' },
+  { value: 'not_filed', label: "No, I haven't filed one yet", desc: '' },
+  { value: 'not_sure', label: "I'm not sure", desc: '' },
+];
+
 export default function IntakeForm({ onSubmit }) {
   const [coverageType, setCoverageType] = useState('');
   const [medicareType, setMedicareType] = useState('');
@@ -39,6 +46,7 @@ export default function IntakeForm({ onSubmit }) {
   const [otherCarrier, setOtherCarrier] = useState('');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [grievanceStatus, setGrievanceStatus] = useState('');
   const [carrierSearch, setCarrierSearch] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -55,7 +63,7 @@ export default function IntakeForm({ onSubmit }) {
     ? CARRIERS.filter(c => c.toLowerCase().includes(carrierSearch.toLowerCase()))
     : CARRIERS;
 
-  const canSubmit = coverageType && amount && description && !submitting
+  const canSubmit = coverageType && amount && description && grievanceStatus && !submitting
     && (!showMedicareType || medicareType)
     && (!showMedigap || medigapPlan)
     && (!showCarrier || carrier || otherCarrier);
@@ -71,6 +79,7 @@ export default function IntakeForm({ onSubmit }) {
       carrier: carrier === 'Other' ? otherCarrier : carrier || undefined,
       amount,
       description,
+      grievanceStatus,
     });
   };
 
@@ -252,6 +261,32 @@ export default function IntakeForm({ onSubmit }) {
           <div className="text-right text-sm text-slate-400 mt-1">{description.length}/2000</div>
         </div>
 
+        {/* Grievance Status */}
+        <fieldset>
+          <legend className="text-lg font-semibold text-slate-700 mb-2">
+            Have you already filed an appeal or grievance with your insurance company?
+          </legend>
+          <p className="text-sm text-slate-500 mb-3">
+            This helps us know where you are in the process so we can give you the right next steps.
+          </p>
+          <div className="grid gap-3">
+            {GRIEVANCE_STATUS.map(gs => (
+              <button
+                type="button"
+                key={gs.value}
+                onClick={() => setGrievanceStatus(gs.value)}
+                className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                  grievanceStatus === gs.value
+                    ? 'border-brand-600 bg-brand-50 shadow-sm'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
+                }`}
+              >
+                <div className="font-medium text-slate-800">{gs.label}</div>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
         {/* Submit */}
         <div className="pt-2">
           <button
@@ -267,6 +302,9 @@ export default function IntakeForm({ onSubmit }) {
           </button>
           <p className="text-center text-sm text-slate-400 mt-3">
             We'll review your situation and tell you exactly what to do next.
+          </p>
+          <p className="text-center text-xs text-slate-400 mt-2">
+            If you have multiple bills or denials, start with the one that matters most. You can come back and submit the others separately.
           </p>
         </div>
       </form>

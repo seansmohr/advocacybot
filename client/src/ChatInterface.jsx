@@ -3,6 +3,32 @@ import ReactMarkdown from 'react-markdown';
 import DocumentUpload from './DocumentUpload.jsx';
 import CaseAnalysis from './CaseAnalysis.jsx';
 
+function parseDocRequests(text) {
+  const parts = [];
+  const regex = /```docrequest\s*\n([\s\S]*?)\n```/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ type: 'text', content: text.slice(lastIndex, match.index) });
+    }
+    try {
+      const doc = JSON.parse(match[1].trim());
+      parts.push({ type: 'docrequest', document: doc.document, reason: doc.reason });
+    } catch {
+      parts.push({ type: 'text', content: match[0] });
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push({ type: 'text', content: text.slice(lastIndex) });
+  }
+
+  return parts.length > 0 ? parts : [{ type: 'text', content: text }];
+}
+
 function isFullAnalysis(text) {
   return text.includes('## 1. Case Analysis Summary') && text.includes('## 5. Draft Appeal Letter');
 }
@@ -24,7 +50,7 @@ function processPhoneNumbers(text) {
   );
 }
 
-function MessageBubble({ message }) {
+function MessageBubble({ message, onUpload, onSkip, onTypeIn }) {
   const isUser = message.role === 'user';
 
   if (isUser) {
@@ -70,6 +96,8 @@ function MessageBubble({ message }) {
     );
   }
 
+  const parts = parseDocRequests(content);
+
   return (
     <div className="flex justify-start mb-4">
       <div className="max-w-[85%]">
@@ -77,22 +105,40 @@ function MessageBubble({ message }) {
           <div className="w-7 h-7 bg-brand-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
             <span className="text-white text-xs font-bold">M</span>
           </div>
-          <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-slate-100 text-base text-slate-800">
-            <div className="prose prose-sm prose-slate max-w-none">
-              <ReactMarkdown
-                components={{
-                  a: ({ href, children }) => {
-                    if (href?.startsWith('tel:')) {
-                      return <a href={href} className="text-brand-600 font-medium underline">{children}</a>;
-                    }
-                    return <a href={href} target="_blank" rel="noopener noreferrer" className="text-brand-600 underline">{children}</a>;
-                  },
-                  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>
-                }}
-              >
-                {processPhoneNumbers(content)}
-              </ReactMarkdown>
-            </div>
+          <div className="space-y-2">
+            {parts.map((part, i) => {
+              if (part.type === 'docrequest') {
+                return (
+                  <DocumentUpload
+                    key={i}
+                    documentName={part.document}
+                    reason={part.reason}
+                    onUpload={onUpload}
+                    onSkip={onSkip}
+                    onTypeIn={onTypeIn}
+                  />
+                );
+              }
+              return (
+                <div key={i} className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-slate-100 text-base text-slate-800">
+                  <div className="prose prose-sm prose-slate max-w-none">
+                    <ReactMarkdown
+                      components={{
+                        a: ({ href, children }) => {
+                          if (href?.startsWith('tel:')) {
+                            return <a href={href} className="text-brand-600 font-medium underline">{children}</a>;
+                          }
+                          return <a href={href} target="_blank" rel="noopener noreferrer" className="text-brand-600 underline">{children}</a>;
+                        },
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>
+                      }}
+                    >
+                      {processPhoneNumbers(part.content)}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -121,10 +167,18 @@ export default function ChatInterface({ messages, isStreaming, onSendMessage, on
     setInputText('');
   }, [inputText, isStreaming, onSendMessage]);
 
-  const handleBatchUpload = useCallback((files) => {
-    const count = files.length;
-    const label = count === 1 ? '1 document' : `${count} documents`;
-    onSendMessage(`Here are my ${label}`, files, false);
+  const handleDocUpload = useCallback((processed, docName) => {
+    const count = processed.length;
+    const label = count === 1 ? `my ${docName}` : `${count} files for ${docName}`;
+    onSendMessage(`Here is ${label}`, processed, false);
+  }, [onSendMessage]);
+
+  const handleDocSkip = useCallback((docName) => {
+    onSendMessage(`I don't have my ${docName}`, undefined, false);
+  }, [onSendMessage]);
+
+  const handleDocTypeIn = useCallback((docName) => {
+    onSendMessage(`I have my ${docName} but I'd rather type in the details instead of uploading it.`, undefined, false);
   }, [onSendMessage]);
 
   const handleGenerateAnalysis = useCallback(() => {
@@ -146,7 +200,13 @@ export default function ChatInterface({ messages, isStreaming, onSendMessage, on
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto chat-scroll px-4 py-4 max-w-3xl mx-auto w-full">
         {messages.map((msg, i) => (
-          <MessageBubble key={i} message={msg} />
+          <MessageBubble
+            key={i}
+            message={msg}
+            onUpload={handleDocUpload}
+            onSkip={handleDocSkip}
+            onTypeIn={handleDocTypeIn}
+          />
         ))}
 
         {isStreaming && messages[messages.length - 1]?.content === '' && (
@@ -160,11 +220,6 @@ export default function ChatInterface({ messages, isStreaming, onSendMessage, on
               </div>
             </div>
           </div>
-        )}
-
-        {/* Batch document upload zone — shown after AI has responded, not during analysis */}
-        {!isStreaming && !showingAnalysis && messages.length > 1 && (
-          <DocumentUpload onUpload={handleBatchUpload} disabled={isStreaming} />
         )}
 
         {/* Generate full analysis button */}
